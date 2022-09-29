@@ -373,13 +373,6 @@ class _CrudPageState extends State<CrudPage> {
 
   
   upload() async{
-    setState(() {
-      count = 1;
-      amountList.clear();
-      amountTimesQuantityList.clear();
-      amountList = [0];
-      amountTimesQuantityList = [0];
-    });
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
     if (stocksDropDown == "Select Stock") {
@@ -407,6 +400,13 @@ class _CrudPageState extends State<CrudPage> {
 
       };
       await documentReferencer.set(data).then((value) => Navigator.pop(context)).then((value) => Navigator.pop(context));
+      setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   delete(name){
@@ -418,6 +418,13 @@ class _CrudPageState extends State<CrudPage> {
         ),
       );
      FirebaseFirestore.instance.collection("stock").doc(name).delete().then((value) => Navigator.pop(context));
+     setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   edit(name) async{
@@ -448,6 +455,13 @@ class _CrudPageState extends State<CrudPage> {
 
       };
       await documentReferencer.update(data).then((value) => Navigator.pop(context)).then((value) => Navigator.pop(context));
+      setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   void dateTimePicker() {
