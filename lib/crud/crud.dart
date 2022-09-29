@@ -363,7 +363,6 @@ class _CrudPageState extends State<CrudPage> {
                 Text("Net Amount = ${amountList.reduce((value, element) => value + element)}"),
                  const SizedBox(width: 25,),
                 Text("Net Price = ${amountTimesQuantityList.reduce((value, element) => value + element)}"),
-                 
               ],
             ),
           ),
@@ -374,6 +373,13 @@ class _CrudPageState extends State<CrudPage> {
 
   
   upload() async{
+    setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
     if (stocksDropDown == "Select Stock") {
