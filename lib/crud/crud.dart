@@ -24,8 +24,9 @@ class _CrudPageState extends State<CrudPage> {
   var transactionStatusController1= TextEditingController();
   var stocksDropDown1 = "Select Stock";
 
-  List<int> amountTimesQuantity = [0];
+  List<int> amountTimesQuantityList = [0];
   List<int> amountList = [0];
+  int count = 1;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -324,12 +325,20 @@ class _CrudPageState extends State<CrudPage> {
                               ),
                               IconButton(
                                 onPressed: (){
+                                  var amount;
+                                  var amountTimesQuantity;
+                                  if(count == 1){
                                   setState(() {
-                                    for(int i = 0; i < firestoreItems.length; i++){
+                                      for(int i = 0; i < firestoreItems.length; i++){
                                       amountList.add(int.parse(firestoreItems[i]['amount']));
-                                      amountTimesQuantity.add(int.parse(firestoreItems[i]['amount'])*int.parse(firestoreItems[i]['transaction_quantity']));
+                                      amountTimesQuantityList.add(int.parse(firestoreItems[i]['amount'])*int.parse(firestoreItems[i]['transaction_quantity']));
+                                      amount = amountList.reduce((value, element) => value + element);
+                                      amountTimesQuantity = amountTimesQuantityList.reduce((value, element) => value + element);
+                                      count ++;
                                     }
+                                    addTotals(amount,amountTimesQuantity);
                                   });
+                                  }
                                 },
                                 icon: const Icon(Icons.add, color: Colors.greenAccent,)
                               ),
@@ -353,7 +362,7 @@ class _CrudPageState extends State<CrudPage> {
               children: [
                 Text("Net Amount = ${amountList.reduce((value, element) => value + element)}"),
                  const SizedBox(width: 25,),
-                Text("Net Price = ${amountTimesQuantity.reduce((value, element) => value + element)}"),
+                Text("Net Price = ${amountTimesQuantityList.reduce((value, element) => value + element)}"),
                  
               ],
             ),
@@ -451,24 +460,13 @@ class _CrudPageState extends State<CrudPage> {
       currentTime: DateTime.now(), locale: LocaleType.en);
   }
 
-  addDataFromFirebase(){
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection("stock").snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Text(
-            'Loading...',
-          );
-        } else {
-          List<QueryDocumentSnapshot<Object?>> firestoreItems = snapshot.data!.docs;
-          return ListView.builder(
-            itemCount: firestoreItems.length,
-            itemBuilder: ((context, index) {
-            amountTimesQuantity.add(int.parse(firestoreItems[index]['amount'])*int.parse(firestoreItems[index]['transaction_quantity']));
-            return const SizedBox();
-          }));
-        }
-      }
-    );
+  addTotals(amt, multiAmt) async{
+    DocumentReference documentReferencer = FirebaseFirestore.instance.collection("totals").doc('id');
+    Map<String, dynamic> data = {
+      'id':'id',
+      'total_amount' : amt,
+      'total_amountxquantity' :multiAmt,
+      };
+    await documentReferencer.update(data);
   }
 }

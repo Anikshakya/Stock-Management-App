@@ -163,13 +163,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  motion_toast:
-    dependency: "direct main"
-    description:
-      name: motion_toast
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.4.3"
   path:
     dependency: transitive
     description:
@@ -239,10 +232,5 @@ packages:
     source: hosted
     version: "2.1.2"
 sdks:
-<<<<<<< HEAD
   dart: ">=2.17.0-0 <3.0.0"
   flutter: ">=1.12.13+hotfix.5"
-=======
-  dart: ">=2.16.1 <3.0.0"
-  flutter: ">=1.17.0"
->>>>>>> a8536b55c0b5a48a43c72ff977db7a53b681f0cc
