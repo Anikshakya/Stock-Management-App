@@ -17,8 +17,7 @@ class _StockManageState extends State<StockManage> {
 
   //Text Field Control
   var formKey = GlobalKey<FormState>();
-  final buyingPriceController = TextEditingController();
-  final sellingPriceController = TextEditingController();
+  final stockPriceController = TextEditingController();
   final quantityController = TextEditingController();
   final transactionDateController = TextEditingController();
   final transactionTypeController = TextEditingController();
@@ -84,20 +83,11 @@ class _StockManageState extends State<StockManage> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.number,
-                              controller: buyingPriceController,
-                              decoration:const InputDecoration(hintText: "Buying Price"),
+                              controller: stockPriceController,
+                              decoration:const InputDecoration(hintText: "Stock Price"),
                               autovalidateMode:AutovalidateMode.onUserInteraction,
                               validator: (contact) => contact!.isEmpty
-                                  ? "Buying Price cannot be empty."
-                                  : null,
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              controller: sellingPriceController,
-                              decoration:const InputDecoration(hintText: "Selling Price"),
-                              autovalidateMode:AutovalidateMode.onUserInteraction,
-                              validator: (contact) => contact!.isEmpty
-                                  ? "Selling Price cannot be empty."
+                                  ? "Stock Price cannot be empty."
                                   : null,
                             ),
                             TextFormField(
@@ -173,14 +163,14 @@ class _StockManageState extends State<StockManage> {
           Card(
             color: Colors.teal,
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: const [
                   Text('Stock Name', style: TextStyle(color: Colors.white),),
                   Text('Quantity', style: TextStyle(color: Colors.white),),
                   Text('Buying Price', style: TextStyle(color: Colors.white),),
-                  Text('Selleing Price', style: TextStyle(color: Colors.white),),
+                  Text('Delete', style: TextStyle(color: Colors.white),),
                 ],
               ),
             ),
@@ -188,34 +178,32 @@ class _StockManageState extends State<StockManage> {
           //Stock List that has been added
           Expanded(child: stockLists()),
 
-          //Totals section
+          //Total stock Price
           Card(
             color: Colors.teal,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  Text(
-                    'Total Buying Price:', style: TextStyle(color: Colors.white),
+                children: [
+                  GetBuilder(
+                    init: StockManageController(),
+                    builder: (_){
+                      return Obx(
+                        ()=> stockManageController.isLoading.value
+                        ? const Center(child: Text('Loading...', style: TextStyle(color: Colors.white),))
+                        : //Totals section
+                        Text(
+                          'Total Stock Price: ${stockManageController.stockPriceList.reduce((value, element) =>  value + element)}', style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
                   ),
-                  Text(
-                    'Total Selling Price:', style: TextStyle(color: Colors.white),
-                  ),
-
-                  // Text(
-                  //   'Total Buying Price:${stockManageController.stockList.reduce((value, element) => value + element.buyingPrice)}', 
-                  //   style: TextStyle(color: Colors.white),
-                  // ),
-                  // Text(
-                  //   'Total Selling Price:${stockManageController.stockList.reduce((value, element) => value + element.sellingPrice)}',
-                  //   style: TextStyle(color: Colors.white),
-                  // ),
-
                 ],
               ),
             ),
           ),
+          
         ],
       ),
     );
@@ -242,8 +230,13 @@ class _StockManageState extends State<StockManage> {
                     children: [
                       Text(stockManageController.stockList[index].stockName),
                       Text(stockManageController.stockList[index].quantity),
-                      Text(stockManageController.stockList[index].buyingPrice),
-                      Text(stockManageController.stockList[index].sellingPrice),
+                      Text(stockManageController.stockList[index].stockPrice),
+                      IconButton(
+                        onPressed: (){
+                          delete(stockManageController.stockList[index].stockName);
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.redAccent,)
+                      ),
                     ],
                   ),
                 ),
@@ -254,6 +247,8 @@ class _StockManageState extends State<StockManage> {
       }
     );
   }
+
+ 
 
   //Add New Stocks to firebase
   uploadStock() async{
@@ -278,15 +273,26 @@ class _StockManageState extends State<StockManage> {
     DocumentReference documentReferencer = FirebaseFirestore.instance.collection("stocks").doc(stocksDropDown.trim());
     Map<String, dynamic> data = {
       'stock_name':stocksDropDown.trim(),
-      'buying_price':buyingPriceController.text.trim().toString(),
-      'selling_price':buyingPriceController.text.trim().toString(),
+      'stock_price':stockPriceController.text.trim().toString(),
       'transaction_date':transactionDateController.text.trim().toString(),
       'quantity':quantityController.text.trim().toString(),
       'transaction_type':transactionTypeController.text.trim().toString(),
-
     };
     await documentReferencer.set(data).then((value) => Navigator.pop(context)).then((value) => Navigator.pop(context));
     stockManageController.getData();
+  }
+
+  //Delete stock from Firebase
+  delete(name){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+     FirebaseFirestore.instance.collection("stocks").doc(name).delete().then((value) => Navigator.pop(context));
+     stockManageController.getData();
   }
 
   //Date And Time Picker
