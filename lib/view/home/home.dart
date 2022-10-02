@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stock_management/Dashboard/dashboard.dart';
-import 'package:stock_management/crud/crud.dart';
+import 'package:get/get.dart';
+import 'package:stock_management/view/Dashboard/dashboard.dart';
+import 'package:stock_management/view/crud/crud.dart';
+import 'package:stock_management/view/stock%20manage/stock_manage.dart';
 
 class Home extends StatefulWidget {
   const Home({ Key? key }) : super(key: key);
@@ -10,8 +12,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  
-
   
   @override
   Widget build(BuildContext context) {
@@ -25,6 +25,9 @@ class _HomeState extends State<Home> {
               Text('CRUD'),
             ],
           ),
+          actions: [
+            TextButton(onPressed: ()=>Get.to(()=>const StockManage()), child: const Text("New CRUD page", style: TextStyle(color: Colors.white),))
+          ],
         ),
         body: const SafeArea(
           child: TabBarView(

@@ -218,6 +218,7 @@ class _CrudPageState extends State<CrudPage> {
                                     builder: (BuildContext context) => StatefulBuilder(
                                       builder: (context, setState) {
                                         return AlertDialog(
+                                          contentPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12, top: 20),
                                           title: Form(
                                             key: formKey,
                                             child: Column(
@@ -314,8 +315,6 @@ class _CrudPageState extends State<CrudPage> {
                                                 onPrimary: const Color.fromARGB(255, 184, 183, 183),
                                                 primary: Colors.black),
                                           ),
-                                          contentPadding: const EdgeInsets.only(
-                                              left: 24, right: 24, bottom: 12, top: 20),
                                         );
                                       }
                                     ),
@@ -338,6 +337,7 @@ class _CrudPageState extends State<CrudPage> {
                                     }
                                     addTotals(amount,amountTimesQuantity);
                                   });
+                                  getData();
                                   }
                                 },
                                 icon: const Icon(Icons.add, color: Colors.greenAccent,)
@@ -477,7 +477,8 @@ class _CrudPageState extends State<CrudPage> {
           transactionDateController1.text=date.toString();
         });
       }, 
-      currentTime: DateTime.now(), locale: LocaleType.en);
+      currentTime: DateTime.now(), locale: LocaleType.en
+    );
   }
 
   addTotals(amt, multiAmt) async{
@@ -488,5 +489,10 @@ class _CrudPageState extends State<CrudPage> {
       'total_amountxquantity' :multiAmt,
       };
     await documentReferencer.update(data);
+  }
+
+  getData(){
+    var a;
+   a = FirebaseFirestore.instance.collection("totals").snapshots();
   }
 }
