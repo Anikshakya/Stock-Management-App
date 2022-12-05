@@ -39,6 +39,9 @@ dependencies:
   firebase_core: ^1.23.0
   cloud_firestore: ^3.4.9
 
+  #GetX
+  get: ^4.6.5
+
   #For Picking Date and Time
   flutter_datetime_picker: ^1.5.1
 

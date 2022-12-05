@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_typing_uninitialized_variables, unused_local_variable
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -220,6 +220,7 @@ class _CrudPageState extends State<CrudPage> {
                                     builder: (BuildContext context) => StatefulBuilder(
                                       builder: (context, setState) {
                                         return AlertDialog(
+                                          contentPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12, top: 20),
                                           title: Form(
                                             key: formKey,
                                             child: Column(
@@ -316,8 +317,6 @@ class _CrudPageState extends State<CrudPage> {
                                                 onPrimary: const Color.fromARGB(255, 184, 183, 183),
                                                 primary: Colors.black),
                                           ),
-                                          contentPadding: const EdgeInsets.only(
-                                              left: 24, right: 24, bottom: 12, top: 20),
                                         );
                                       }
                                     ),
@@ -340,6 +339,7 @@ class _CrudPageState extends State<CrudPage> {
                                     }
                                     addTotals(amount,amountTimesQuantity);
                                   });
+                                  getData();
                                   }
                                 },
                                 icon: const Icon(Icons.add, color: Colors.greenAccent,)
@@ -375,13 +375,6 @@ class _CrudPageState extends State<CrudPage> {
 
   
   upload() async{
-    setState(() {
-      count = 1;
-      amountList.clear();
-      amountTimesQuantityList.clear();
-      amountList = [0];
-      amountTimesQuantityList = [0];
-    });
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
     if (stocksDropDown == "Select Stock") {
@@ -409,6 +402,13 @@ class _CrudPageState extends State<CrudPage> {
 
       };
       await documentReferencer.set(data).then((value) => Navigator.pop(context)).then((value) => Navigator.pop(context));
+      setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   delete(name){
@@ -420,6 +420,13 @@ class _CrudPageState extends State<CrudPage> {
         ),
       );
      FirebaseFirestore.instance.collection("stock").doc(name).delete().then((value) => Navigator.pop(context));
+     setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   edit(name) async{
@@ -450,6 +457,13 @@ class _CrudPageState extends State<CrudPage> {
 
       };
       await documentReferencer.update(data).then((value) => Navigator.pop(context)).then((value) => Navigator.pop(context));
+      setState(() {
+      count = 1;
+      amountList.clear();
+      amountTimesQuantityList.clear();
+      amountList = [0];
+      amountTimesQuantityList = [0];
+    });
   }
 
   void dateTimePicker() {
@@ -465,7 +479,8 @@ class _CrudPageState extends State<CrudPage> {
           transactionDateController1.text=date.toString();
         });
       }, 
-      currentTime: DateTime.now(), locale: LocaleType.en);
+      currentTime: DateTime.now(), locale: LocaleType.en
+    );
   }
 
   addTotals(amt, multiAmt) async{
@@ -476,5 +491,10 @@ class _CrudPageState extends State<CrudPage> {
       'total_amountxquantity' :multiAmt,
       };
     await documentReferencer.update(data);
+  }
+
+  getData(){
+    var a;
+   a = FirebaseFirestore.instance.collection("totals").snapshots();
   }
 }

@@ -1,16 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Dashboard/view_gsheet_data.dart';
 import 'package:stock_management/controller/gsheet_controller.dart';
 import 'package:stock_management/model/gsheet_model.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({ Key? key }) : super(key: key);
+class DashboardForm extends StatefulWidget {
+  const DashboardForm({ Key? key }) : super(key: key);
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  State<DashboardForm> createState() => _DashboardFormState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardFormState extends State<DashboardForm> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController mobileNoController = TextEditingController();
@@ -21,6 +22,25 @@ class _DashboardState extends State<Dashboard> {
         padding: const EdgeInsets.fromLTRB(25,40,25,0),
         child: Column(
           children: [
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('totals').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                    return const Text(
+                      'Loading...',
+                    );
+                  } else {
+                    List<QueryDocumentSnapshot<Object?>> firestoreItems = snapshot.data!.docs;
+                    return Column(
+                      children: [
+                        Text("Total Amount : ${firestoreItems[0]['total_amount']}"),
+                        Text("Total Amount : ${firestoreItems[0]['total_amountxquantity']}"),
+                      ],
+                    );
+                  }
+              }
+            ),
+            const SizedBox(height: 20,),
             TextFormField(
               controller: nameController,
               validator: (value) {
