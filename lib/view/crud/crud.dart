@@ -3,6 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:get/get.dart';
+import 'package:stock_management/Dashboard/view_gsheet2.dart';
+import 'package:stock_management/controller/gsheet_controller.dart';
+import 'package:stock_management/model/gsheet2_model.dart';
 
 class CrudPage extends StatefulWidget {
   const CrudPage({ Key? key }) : super(key: key);
@@ -26,9 +30,21 @@ class _CrudPageState extends State<CrudPage> {
   var transactionStatusController1= TextEditingController();
   var stocksDropDown1 = "Select Stock";
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController mobileNoController = TextEditingController();
+  final FormController formCon = Get.put(FormController());
+
   List<int> amountTimesQuantityList = [0];
   List<int> amountList = [0];
   int count = 1;
+
+    @override
+  void initState() {
+    formCon.getFeedbackList2();
+    super.initState();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -346,6 +362,57 @@ class _CrudPageState extends State<CrudPage> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 20,),
+                          TextFormField(
+                            controller: nameController,
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Enter Name';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Full Name'
+                            ),
+                          ),
+                          const SizedBox(height: 20,),
+                          TextFormField(
+                            controller: emailController,
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Enter Email';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Email'
+                            ),
+                          ),
+                          const SizedBox(height: 20,),
+                          TextFormField(
+                            controller: mobileNoController,
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Enter Phone Number';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Contact'
+                            ),
+                          ),
+                          const SizedBox(height: 50,),
+                          ElevatedButton(
+                            onPressed: submitForm, 
+                            child: const Text("Submit")
+                          ),
+                          const SizedBox(height: 10,),
+                          ElevatedButton(
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const View2(),));
+                            }, 
+                            child: const Text("View Data")
+                          ),
                           // Text("Net Price = ${multipliedQuantityList.reduce((value, element) => value + element)}"),
                         ],
                       ),
@@ -496,5 +563,25 @@ class _CrudPageState extends State<CrudPage> {
   getData(){
     var a;
    a = FirebaseFirestore.instance.collection("totals").snapshots();
+  }
+
+  void submitForm() async{
+    await formCon.getFeedbackList2();
+    SheetModel secondForm = SheetModel(
+          (formCon.lastId2+1).toString(),
+          nameController.text,
+          emailController.text,
+          mobileNoController.text,
+      );
+      FormController formController = FormController();
+      formController.submitForm2(secondForm, (String response) {
+        debugPrint("Response: $response");
+        if (response == FormController.status) {
+          debugPrint("Feedback Submitted");
+        } else {
+          debugPrint("Error Occurred!");
+        }
+      }
+    );
   }
 }

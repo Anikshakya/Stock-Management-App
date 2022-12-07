@@ -1,21 +1,28 @@
 import 'dart:convert' as convert;
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:stock_management/model/gsheet2_model.dart';
 import 'package:stock_management/model/gsheet_model.dart';
 
-/// FormController is a class which does work of saving FeedbackForm in Google Sheets using 
-/// HTTP GET request on Google App Script Web URL and parses response and sends result callback.
+
 class FormController {
   
   // Google App Script Web URL.
-  static const String postUrl = "https://script.google.com/macros/s/AKfycbwq80MOokVEm14m9IslcewP5fUYDEz9O3H67Kwep1cC_O8B3BzFn6Vq04mUP4e94u1_rA/exec";
-  static String getUrl ="https://script.google.com/macros/s/AKfycbyuTA7Z7g8lMr1Q7gYegJGGyx2QsT7tnULFMOxtxD62EUM3d425ckUsQwVey7Pq6GF2-Q/exec";
-  static String updateUrl = "https://script.google.com/macros/s/AKfycbwOP6fSG5bCLiyfC0xw2wZpkDi9EtkjbJKCU0i7MIoLguy3pCX41mP5v99vth5yAJvBEw/exec";
-  // Success Status Message
-  static const status = "SUCCESS";
+  static const String postUrl = "https://script.google.com/macros/s/AKfycbzR-5x1M2GYrzlaEeT_wSLPdwzEJzFBglQ36rhy6GEUjZmPbRiLYHNXvHjfWjnJrVFL4A/exec";
+  static String getUrl ="https://script.google.com/macros/s/AKfycbw0UWSbh_Vv_i-7vYFs4UDNK68JVpMV4tBbQWHphIL9RKgilmQp5jGMFLmaoiw1z2JVjA/exec";
+  static String updateAllUrl ="https://script.google.com/macros/s/AKfycbzuAAoZYUg_n3d5O1C3Lj3YWAbP9fTnZfFtEN1dEGGr4dHumASfTjIZPmFH1gYanI8XZw/exec";
 
-  /// Async function which saves feedback, parses [feedbackForm] parameters
-  /// and sends HTTP GET request on [postUrl]. On successful response, [callback] is called.
+  static String postUrl2 = "https://script.google.com/macros/s/AKfycbz8S8NOXVq9FYWbTcJbVddstKK1lEFqRtbjd53G7983bP5vXB030AR2mDM3QoevESWPYQ/exec";
+  static String getUrl2 = "https://script.google.com/macros/s/AKfycbwNbjTD8nTMsKoWcHc6lEnEws7iDK-K72HSatRvBtUm3O_3Oe6EmoEhCltj5fwteis9Gg/exec";
+  static String updateAllUrl2 ="https://script.google.com/macros/s/AKfycbwBkf7ujiIv2GGEnYmcDMTr2Q4W0J9LEWLmPaAFGyr02aW6gZFLXTwCEo5Op7ExqenJ/exec";
+
+
+  static const status = "SUCCESS";
+  List jsonFeedback=[];
+  List jsonFeedback2=[];
+  int lastId = 0;
+  int lastId2 = 0;
+
   void submitForm(GoogleSheetModel feedbackForm, void Function(String) callback) async {
     try {
       await http.post(Uri.parse(postUrl), body: feedbackForm.toJson()).then((response) async {
@@ -33,22 +40,56 @@ class FormController {
     }
   }
 
-  void updateForm(String oldName, String newName, [String? oldEmail, String? newEmail, String? oldContact, String? newContact,]) async {
+  void updateForm(String id,  String oldName, String newName, [String? oldEmail, String? newEmail, String? oldContact, String? newContact,]) async {
     try {
-      await http.get(Uri.parse(updateUrl+"?ProductId=$oldName&UpdateValue=$newName"), headers: {});
+      await http.get(Uri.parse(updateAllUrl+"?Id=$id&DeleteName=$oldName&UpdateName=$newName&DeleteEmail=$oldEmail&UpdateEmail=$newEmail&DeleteContact=$oldContact&UpdateContact=$newContact"), headers: {});
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<List<GoogleSheetModel>> getFeedbackList() async {
+    return await http.get(Uri.parse(getUrl)).then((response) {
+      jsonFeedback = convert.jsonDecode(response.body) as List;
+      var data =  jsonFeedback.map((json) => GoogleSheetModel.fromJson(json)).toList();
+      lastId = int.parse(data[data.length-1].id);
+      return data;
+    });
+  }
+
+
+  void submitForm2(SheetModel secondForm, void Function(String) callback) async {
+    try {
+      await http.post(Uri.parse(postUrl2), body: secondForm.toJson()).then((response) async {
+        if (response.statusCode == 302) {
+          var url = response.headers['location'];
+          await http.get(Uri.parse(url!)).then((response) {
+            callback(convert.jsonDecode(response.body)['status']);
+          });
+        } else {
+          callback(convert.jsonDecode(response.body)['status']);
+        }
+      });
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
 
-   /// Async function which loads feedback from endpoint URL and returns List.
-  Future<List<GoogleSheetModel>> getFeedbackList() async {
-    return await http.get(Uri.parse(getUrl)).then((response) {
-      var jsonFeedback = convert.jsonDecode(response.body) as List;
-      return jsonFeedback.map((json) => GoogleSheetModel.fromJson(json)).toList();
+  Future<List<SheetModel>> getFeedbackList2() async {
+    return await http.get(Uri.parse(getUrl2)).then((response) {
+      jsonFeedback2 = convert.jsonDecode(response.body) as List;
+      var data =  jsonFeedback2.map((json) => SheetModel.fromJson(json)).toList();
+      lastId2 = int.parse(data[data.length-1].id);
+      return data;
     });
   }
 
-
+  void updateForm2(String id,  String oldName, String newName, [String? oldEmail, String? newEmail, String? oldContact, String? newContact,]) async {
+    try {
+      await http.get(Uri.parse(updateAllUrl2+"?Id=$id&DeleteName=$oldName&UpdateName=$newName&DeleteEmail=$oldEmail&UpdateEmail=$newEmail&DeleteContact=$oldContact&UpdateContact=$newContact"), headers: {});
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }

@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:stock_management/Dashboard/edit_gsheet_data.dart';
 import 'package:stock_management/controller/gsheet_controller.dart';
-import 'package:stock_management/model/gsheet_model.dart';
+import 'package:stock_management/model/gsheet2_model.dart';
 
-class GsheetView extends StatefulWidget {
-  const GsheetView({ Key? key }) : super(key: key);
+class View2 extends StatefulWidget {
+  const View2({ Key? key }) : super(key: key);
 
   @override
-  State<GsheetView> createState() => _GsheetViewState();
+  State<View2> createState() => _View2State();
 }
 
-class _GsheetViewState extends State<GsheetView> {
-  List<GoogleSheetModel> items = [];
+class _View2State extends State<View2> {
+  List<SheetModel> feedbackItems2 = [];
     
   // Method to Submit Feedback and save it in Google Sheets
 
   @override
   void initState() {
     super.initState();
-    FormController().getFeedbackList().then((feedbackItems) {
+    FormController().getFeedbackList2().then((feedbackItems2) {
       setState(() {
-        items = feedbackItems;
+        this.feedbackItems2 = feedbackItems2;
       });
     });
   }
@@ -32,7 +32,7 @@ class _GsheetViewState extends State<GsheetView> {
         title: const Text("Gsheet View"),
       ),
       body: SingleChildScrollView(
-        child: items.isEmpty ? SizedBox(
+        child: feedbackItems2.isEmpty ? SizedBox(
           height: MediaQuery.of(context).size.height-kToolbarHeight,
           child: const Center(child: CircularProgressIndicator(),)
         ) :
@@ -40,7 +40,7 @@ class _GsheetViewState extends State<GsheetView> {
           padding: const EdgeInsets.fromLTRB(5,10,10,10),
           child: ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
+            itemCount: feedbackItems2.length,
             shrinkWrap: true,
             itemBuilder: (context, index) {
               if(index != 0){
@@ -48,11 +48,11 @@ class _GsheetViewState extends State<GsheetView> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) {
                       return EditGsheet(
-                        id: items[index].id.toString(),
-                        name: items[index].name.toString(), 
-                        email: items[index].email.toString(),
-                        phone: items[index].mobileNo.toString(),
-                        update: "first",
+                        id: feedbackItems2[index].id.toString(),
+                        name: feedbackItems2[index].fullName.toString(), 
+                        email: feedbackItems2[index].emailAddress.toString(),
+                        phone: feedbackItems2[index].contact.toString(),
+                        update: "Second",
                       );
                     },));
                   },
@@ -63,7 +63,7 @@ class _GsheetViewState extends State<GsheetView> {
                         const Icon(Icons.person),
                         const SizedBox(width: 15,),
                         Expanded(
-                          child: Text(items[index].name.toString()),
+                          child: Text(feedbackItems2[index].fullName.toString()),
                         )
                       ],
                     ),
@@ -73,7 +73,7 @@ class _GsheetViewState extends State<GsheetView> {
                       const Icon(Icons.email),
                       const SizedBox(width: 15,),
                       Expanded(
-                        child: Text(items[index].email.toString()),
+                        child: Text(feedbackItems2[index].emailAddress.toString()),
                       )
                     ],
                   ),

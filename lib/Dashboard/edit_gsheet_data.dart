@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/controller/gsheet_controller.dart';
 
 class EditGsheet extends StatefulWidget {
-  final String name, email, phone;
+  final String name, email, phone, update;
+  final String id;
   const EditGsheet(
-      {Key? key, required this.name, required this.email, required this.phone})
+      {Key? key, required this.name, required this.email, required this.phone, required this.id, required this.update})
       : super(key: key);
 
   @override
@@ -81,9 +82,24 @@ class _EditGsheetState extends State<EditGsheet> {
   void updateForm() {
       FormController formController = FormController();
       // Submit 'form' and save it in Google Sheets.
+      widget.update == "first" ?
       formController.updateForm(
-      widget.name,
-      nameController.text,
+        widget.id.toString(),
+        widget.name,
+        nameController.text,
+        widget.email,
+        emailController.text,
+        widget.phone,
+        mobileNoController.text,
+    ) : 
+    formController.updateForm2(
+        widget.id.toString(),
+        widget.name,
+        nameController.text,
+        widget.email,
+        emailController.text,
+        widget.phone,
+        mobileNoController.text,
     );
   }
 }
